@@ -12,6 +12,40 @@
 <link rel="icon" type="image/png" href="app-icon.png">
 <title>Maximum UWU ♡</title>
 <style>
+  
+#loadingOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #ffd9ed;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+
+#loadingOverlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#loadingOverlay img {
+  width: min(100%, 824px);
+  max-height: 90dvh;
+  object-fit: contain;
+  border-radius: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #loadingOverlay {
+    transition: none;
+  }
+}
+
 :root {
   --pink:#ff79b9; --deep:#dc4f98; --light:#fff0f8; --purple:#c49aff;
   --text:#713b60; --page:#ffe8f4; --card:rgba(255,250,253,.96);
@@ -119,6 +153,11 @@ body { background-image:var(--theme-art), radial-gradient(circle at 15px 15px,va
 </style>
 </head>
 <body>
+  
+<div id="loadingOverlay" role="status" aria-label="Maximum UWU is loading">
+  <img src="loading.gif" alt="Two kawaii cats with a pink loading animation">
+</div>
+
 <section id="welcomeScreen" class="screen active">
   <div class="welcome-card">
     <img class="welcome-art" src="welcome-screen.png" alt="Maximum UWU Converter welcome artwork with two kawaii cats and a heart">
@@ -434,7 +473,22 @@ function showScreen(which) {
   document.getElementById("converterScreen").classList.toggle("active",which==="converter");
   window.scrollTo(0,0);
 }
-document.getElementById("startBtn").addEventListener("click",()=>showScreen("converter"));
+
+const loadingOverlay = document.getElementById("loadingOverlay");
+
+function playLoading(nextAction, duration = 1000) {
+  loadingOverlay.classList.remove("hidden");
+
+  window.setTimeout(() => {
+    nextAction();
+    loadingOverlay.classList.add("hidden");
+  }, duration);
+}
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  playLoading(() => showScreen("converter"), 1000);
+});
+
 document.getElementById("homeBtn").addEventListener("click",()=>showScreen("welcome"));
 document.getElementById("settingsBtn").addEventListener("click",()=>{
   showScreen("converter");
@@ -467,6 +521,11 @@ document.getElementById("chaos").addEventListener("input",e=>{
 renderExpressions();loadPreferences();updateDescription();
 document.getElementById("intensityLabel").textContent="Personality intensity: "+document.getElementById("chaos").value+"%";
 liveConvert();
+  window.addEventListener("load", () => {
+  window.setTimeout(() => {
+    loadingOverlay.classList.add("hidden");
+  }, 1450);
+});
 
 </script>
 </body>
