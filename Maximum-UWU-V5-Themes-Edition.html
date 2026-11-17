@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffb5dc">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Maximum UWU">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="app-icon.png">
+<link rel="icon" type="image/png" href="app-icon.png">
+<title>Maximum UWU ♡</title>
+<style>
+  
+#loadingOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #ffd9ed;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+
+#loadingOverlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#loadingOverlay img {
+  width: min(100%, 824px);
+  max-height: 90dvh;
+  object-fit: contain;
+  border-radius: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #loadingOverlay {
+    transition: none;
+  }
+}
+
+:root {
+  --pink:#ff79b9; --deep:#dc4f98; --light:#fff0f8; --purple:#c49aff;
+  --text:#713b60; --page:#ffe8f4; --card:rgba(255,250,253,.96);
+  --dot1:#ffb9dd; --dot2:#ffffff; --field:#ffffff; --output:#fff3fa;
+}
+* {box-sizing:border-box}
+html {min-height:100%; background:var(--page)}
+body {
+  margin:0; min-height:100vh; min-height:100dvh;
+  padding:calc(14px + env(safe-area-inset-top)) 12px calc(24px + env(safe-area-inset-bottom));
+  font-family:"Trebuchet MS",Arial,sans-serif; color:var(--text);
+  background-color:var(--page);
+  background-image:radial-gradient(circle at 15px 15px,var(--dot1) 2px,transparent 3px),
+    radial-gradient(circle at 45px 45px,var(--dot2) 3px,transparent 4px);
+  background-size:60px 60px;
+  transition:background-color .25s ease;
+}
+.container {
+  max-width:850px; margin:auto; padding:clamp(16px,4vw,26px);
+  border:3px solid white; border-radius:28px; background:var(--card);
+  box-shadow:0 10px 30px #e98cbe55;
+}
+header {text-align:center;margin-bottom:20px}
+h1 {margin:5px 0;color:var(--deep);font-size:clamp(2rem,8vw,3.2rem);text-shadow:2px 3px white}
+.subtitle {color:#a56a91;margin-top:5px}
+.decor {font-size:1.5rem;letter-spacing:8px}
+.section-title {margin:20px 0 9px;font-weight:bold;color:var(--deep)}
+select,textarea,button {font:inherit}
+select,textarea {
+  width:100%; border:2px solid #ffc1df; border-radius:15px; padding:13px;
+  background:var(--field); color:var(--text); outline:none;
+}
+select:focus,textarea:focus {border-color:var(--pink);box-shadow:0 0 0 3px #ffb9dd55}
+textarea {min-height:130px;resize:vertical;line-height:1.6;font-size:1rem}
+#output {background:var(--output)}
+.mode-description {margin:9px 2px 0;min-height:35px;color:#a56a91;font-size:.9rem}
+.slider-line {display:flex;justify-content:space-between;margin:15px 2px 5px;font-size:.9rem}
+input[type=range] {width:100%;accent-color:var(--pink)}
+.buttons {display:flex;flex-wrap:wrap;gap:9px;margin-top:13px}
+button {
+  border:0;border-radius:14px;padding:12px 16px;cursor:pointer;
+  background:var(--pink);color:white;font-weight:bold;transition:transform .15s,filter .15s;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+button:hover {filter:brightness(1.04);transform:translateY(-1px)}
+button:active {transform:scale(.97)}
+.secondary {background:#e8b5e3;color:#713b60}
+.purple {background:var(--purple)}
+.soft {background:#ffe1f1;color:#a3467c}
+.expressions {display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.expression {padding:9px 12px;border:2px solid #ffc1df;border-radius:20px;background:var(--field);color:#b64d88;font-size:.9rem}
+.expression:hover {background:#ffe6f3}
+#status {min-height:20px;margin-top:9px;color:#b64d88;font-size:.85rem}
+.theme-panel {
+  padding:13px;border:2px solid #ffd0e5;border-radius:18px;background:#fff8fc;
+}
+.theme-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.theme-choice {
+  min-height:72px;border:3px solid transparent;border-radius:15px;padding:9px 5px;
+  color:#713b60;font-size:.82rem;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:5px;box-shadow:inset 0 0 0 1px #ffffffaa;
+}
+.theme-choice[aria-pressed="true"] {border-color:#b83c80;box-shadow:0 0 0 2px #ffc1df}
+.theme-swatch {width:100%;height:22px;border-radius:9px;border:1px solid #ffffffaa}
+.combo-grid label {display:grid;gap:5px;font-weight:bold;color:var(--deep)}
+.app-note {font-size:.82rem;color:#a56a91;margin:10px 2px 0;line-height:1.45}
+footer {text-align:center;margin-top:25px;color:#bd82a7;font-size:.85rem}
+@media(max-width:500px) {
+  body {padding-left:9px;padding-right:9px}
+  .container {padding:15px;border-radius:23px}
+  .buttons button {flex:1 1 40%;min-height:46px}
+  .theme-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+  select {min-height:48px}
+  textarea {font-size:16px}
+}
+@media(display-mode: standalone) {
+  body {padding-top:calc(10px + env(safe-area-inset-top))}
+}
+
+:root { --theme-art:none; }
+body { background-image:var(--theme-art), radial-gradient(circle at 15px 15px,var(--dot1) 2px,transparent 3px), radial-gradient(circle at 45px 45px,var(--dot2) 3px,transparent 4px); }
+.screen { display:none; }
+.screen.active { display:block; }
+#welcomeScreen { max-width:900px; margin:0 auto; }
+.welcome-art { display:block; width:100%; height:auto; border-radius:24px; border:4px solid white; box-shadow:0 12px 35px #d94c9850; }
+.welcome-card { text-align:center; padding:clamp(12px,3vw,24px); }
+.welcome-actions { display:grid; gap:12px; max-width:520px; margin:18px auto 0; }
+.big-button { min-height:54px; font-size:1.08rem; border-radius:18px; }
+.welcome-small { color:#a56a91; font-size:.9rem; line-height:1.5; }
+#converterScreen .container { margin-top:0; }
+.topbar { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; }
+.topbar button { min-height:42px; padding:9px 13px; }
+.live-row { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:12px; margin:12px 0; border:2px solid #ffd0e5; border-radius:16px; background:#fff8fc; }
+.live-row label { display:flex; align-items:center; gap:9px; font-weight:bold; color:var(--deep); }
+.live-row input { width:22px; height:22px; accent-color:var(--pink); }
+#intensityLabel { color:#a56a91; font-size:.9rem; }
+.theme-choice { overflow:hidden; }
+.theme-choice .theme-swatch { background-size:cover; background-position:center; }
+#status { overflow-wrap:anywhere; }
+@media(max-width:500px) {
+ .welcome-art { border-radius:17px; }
+ .welcome-card { padding:7px; }
+ .topbar { position:sticky; top:0; z-index:3; padding:5px 0; background:rgba(255,240,248,.9); backdrop-filter:blur(8px); }
+}
+
+
+#themesScreen .container { margin-top:0; }
+#themesScreen .theme-panel { padding:clamp(12px,3vw,20px); }
+#themesScreen .theme-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
+#themesScreen .theme-choice { min-height:92px; font-size:.9rem; background:rgba(255,255,255,.68); }
+#themesScreen .theme-swatch { height:38px; }
+#themesScreen .theme-choice[aria-pressed="true"] { background:#fff0f8; }
+@media(min-width:620px) {
+  #themesScreen .theme-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+
+</style>
+</head>
+<body>
+  
+<div id="loadingOverlay" role="status" aria-label="Maximum UWU is loading">
+  <img src="loading.gif" alt="Two kawaii cats with a pink loading animation">
+</div>
+
+<section id="welcomeScreen" class="screen active">
+  <div class="welcome-card">
+    <img class="welcome-art" src="welcome-screen.png" alt="Maximum UWU Converter welcome artwork with two kawaii cats and a heart">
+    <div class="welcome-actions">
+      <button class="big-button" id="startBtn">♡ START CONVERTING! ♡</button>
+      <button class="secondary big-button" id="welcomeSettingsBtn">♡ BACKGROUND COLLECTION</button>
+    </div>
+    <p class="welcome-small">NO WEIRD STUFF, EVERYTHING IS FAMILY FRIENDLY!<br>Wholesome chaos only. :3</p>
+  </div>
+</section>
+
+<section id="converterScreen" class="screen">
+<main class="container">
+<div class="topbar">
+  <button class="secondary" id="homeBtn">♡ Home</button>
+  <strong>Maximum UWU ♡</strong>
+  <button class="secondary" id="settingsBtn">♡ Themes</button>
+</div>
+<header>
+  <div class="decor">♡ ✧ ♡ ✧ ♡</div>
+  <h1>Maximum UWU</h1>
+  <p class="subtitle">PERSONALITY OVERLOAD — FAMILY FRIENDLY EDITION</p>
+  <div class="decor">૮ ˶ᵔ ᵕ ᵔ˶ ა</div>
+</header>
+
+<div class="section-title">♡ Choose your personality</div>
+<select id="mode">
+<optgroup label="♡ Original modes">
+<option value="none">No Mode</option><option value="classic">Classic UWU</option><option value="cute">Cute</option><option value="evil">Evil</option><option value="unhinged">Unhinged</option><option value="sarcasm">Sarcasm</option><option value="catgirl">Catgirl</option><option value="girlfailure">Girlfailure</option><option value="lovesick">Lovesick</option>
+</optgroup>
+<optgroup label="♡ Shy & soft">
+<option value="shy">Shy</option><option value="timid">Timid</option><option value="bashful">Bashful</option><option value="whisper">Whisper</option><option value="hesitant">Hesitant</option>
+</optgroup>
+<optgroup label="♡ Nervous & awkward">
+<option value="stuttering">Stuttering</option><option value="nervous">Nervous</option><option value="awkward">Awkward</option><option value="insecure">Insecure</option><option value="panic">Panic</option>
+</optgroup>
+<optgroup label="♡ Dramatic"><option value="flustered">Flustered</option><option value="tsundere">Tsundere</option></optgroup>
+<optgroup label="♡ Dere personalities">
+<option value="yandere">Yandere</option><option value="kuudere">Kuudere</option><option value="dandere">Dandere</option><option value="deredere">Deredere</option><option value="himedere">Himedere</option><option value="oujidere">Oujidere</option><option value="kamidere">Kamidere</option><option value="sadodere">Sadodere</option><option value="mayadere">Mayadere</option><option value="hinedere">Hinedere</option><option value="bakadere">Bakadere</option>
+</optgroup>
+<optgroup label="♡ Dominant & confident">
+<option value="bossy">Bossy</option><option value="teasing">Teasing</option><option value="commanding">Commanding</option><option value="protective">Protective</option><option value="confident">Confident</option><option value="royalty">Royalty</option>
+</optgroup>
+<optgroup label="♡ Kisser & furry">
+<option value="boykisser">Boykisser</option><option value="girlkisser">Girlkisser</option><option value="furryboy">Furry Boy</option><option value="furrygirl">Furry Girl</option>
+</optgroup>
+<optgroup label="♡ Creature collection">
+<option value="gremlin">Gremlin</option><option value="floofy">Floofy</option><option value="feral">Feral</option><option value="puppy">Puppy</option><option value="kitten">Kitten</option><option value="fox">Fox</option><option value="wolf">Wolf</option>
+</optgroup>
+
+<optgroup label="♡ Nerdy & brainy">
+<option value="nerdy">Nerdy</option><option value="science">Science Geek</option><option value="bookworm">Bookworm</option><option value="teacherpet">Teacher's Pet</option><option value="overthinker">Overthinker</option>
+</optgroup>
+<optgroup label="♡ Silly & goofy">
+<option value="silly">Silly</option><option value="goofy">Goofy</option><option value="clown">Clown Mode</option><option value="goober">Goober</option><option value="dingus">Dingus</option><option value="jester">Jester</option><option value="brainrot">Brainrot</option><option value="keysmash">Keyboard Smash</option>
+</optgroup>
+<optgroup label="♡ Aesthetic & cozy">
+<option value="dreamy">Dreamy</option><option value="sleepy">Sleepy</option><option value="cottagecore">Cottagecore</option><option value="fairy">Fairy</option><option value="angel">Angel</option><option value="princesscore">Princesscore</option><option value="gothic">Gothic</option><option value="pastel">Pastel</option>
+</optgroup>
+<optgroup label="♡ Internet & gaming">
+<option value="gamer">Gamer</option><option value="npc">NPC</option><option value="streamer">Streamer</option><option value="pixelgremlin">Pixel Gremlin</option><option value="terminallyonline">Terminally Online</option><option value="achievement">Achievement Hunter</option>
+</optgroup>
+<optgroup label="♡ Story & character modes">
+<option value="shakespeare">Shakespearean</option><option value="pirate">Pirate</option><option value="detective">Detective</option><option value="reporter">News Reporter</option><option value="robot">Robot</option><option value="alien">Alien</option><option value="villain">Villain Monologue</option><option value="dramaqueen">Drama Queen</option><option value="grandma">Grandma</option><option value="sportscommentator">Sports Commentator</option><option value="conspiracy">Conspiracy Theorist</option><option value="coach">Motivational Coach</option><option value="poet">Poet</option><option value="piratecaptain">Pirate Captain</option>
+</optgroup>
+<optgroup label="♡ Meme & internet chaos">
+<option value="ohio">Ohio Mode</option><option value="sigma">Sigma</option><option value="rizzler">Rizzler</option><option value="skibidi">Skibidi</option><option value="gyatt">Gyatt Mode</option><option value="based">Based</option><option value="cringe">Cringe Mode</option><option value="ratio">Ratio Mode</option><option value="memelord">Meme Lord</option><option value="brainrotdeluxe">Brainrot Deluxe</option>
+<option value="sobbing">Sobbing</option><option value="wheezing">Wheezing</option><option value="keyboardwarrior">Keyboard Warrior</option><option value="capslock">Caps Lock</option><option value="sideeye">Side-Eye</option><option value="deadpan">Deadpan</option><option value="unimpressed">Unimpressed</option><option value="overdramatic">Overdramatic</option><option value="goblinhours">Goblin Hours</option><option value="sleepdeprived">Sleep-Deprived</option>
+<option value="yapmachine">Yap Machine</option><option value="yapanese">Yapanese</option><option value="professionalyapper">Professional Yapper</option><option value="nothoughts">No Thoughts Head Empty</option><option value="potato">Potato</option><option value="chickennugget">Chicken Nugget</option><option value="npcdialogue">NPC Dialogue</option><option value="loadingbrain">Loading Brain</option><option value="brain404">404 Brain Not Found</option><option value="windowserror">Windows Error</option><option value="showerthoughts">Shower Thoughts</option><option value="pigeonconspiracy">Convinced I'm a Pigeon</option>
+</optgroup>
+<optgroup label="♡ Dramatic & parody">
+<option value="realitytv">Reality TV</option><option value="animeprotagonist">Anime Protagonist</option><option value="animeside">Anime Side Character</option><option value="disneyvillain">Disney Villain</option><option value="soapopera">Soap Opera</option><option value="documentary">Documentary Narrator</option><option value="conspiracyboard">Conspiracy Board</option><option value="courtroom">Courtroom Drama</option><option value="medieval">Medieval Peasant</option><option value="shakespeareghost">Shakespeare's Ghost</option><option value="sportshype">Sports Hype</option><option value="infomercial">Infomercial</option>
+</optgroup>
+<optgroup label="♡ Animals & objects">
+<option value="frog">Frog</option><option value="duck">Duck</option><option value="raccoon">Raccoon</option><option value="pigeon">Pigeon</option><option value="capybara">Capybara</option><option value="orangecat">Orange Cat</option><option value="possum">Possum</option><option value="toaster">Toaster</option><option value="microwave">Sentient Microwave</option><option value="bread">Bread</option>
+</optgroup>
+</select>
+<p class="mode-description" id="description"></p>
+<div class="section-title">♡ Secret Combo Lab</div>
+<p class="app-note">Choose your main personality above, then add one or two ingredients here. Discoveries are saved on this device! ✨</p>
+<div class="combo-grid" style="display:grid;gap:8px;margin:8px 0 12px">
+<label>♡ Extra personality <select id="comboModeA"><option value="">None</option></select></label>
+<label>♡ Third ingredient <select id="comboModeB"><option value="">None</option></select></label>
+</div><p id="comboStatus" class="mode-description" aria-live="polite">No secret combo selected yet. :3</p>
+<div id="comboCollection" class="app-note"></div>
+
+<div class="slider-line"><label for="chaos">♡ Personality intensity</label><span id="chaosValue">50%</span></div>
+<input id="chaos" type="range" min="0" max="100" value="50">
+
+<div class="live-row">
+  <label><input type="checkbox" id="liveToggle"> Live conversion while typing</label>
+  <span id="intensityLabel">Personality intensity: 50%</span>
+</div>
+<div class="section-title">♡ Your original text</div>
+<textarea id="input" placeholder="Type something here... uwu"></textarea>
+<div class="buttons"><button id="convertBtn">♡ Convert!</button><button class="secondary" id="clearBtn">Clear text</button></div>
+
+<div class="section-title">♡ Your transformed text</div>
+<textarea id="output" readonly placeholder="Your magical text will appear here..."></textarea>
+<div class="buttons"><button class="purple" id="copyBtn">Copy ♡</button><button class="secondary" id="againBtn">Convert again</button><button class="soft" id="randomBtn">Random expression</button></div>
+<p id="status" aria-live="polite"></p>
+
+<div class="section-title">♡ Expression collection</div>
+<p class="subtitle">Tap an expression to add it to your original text!</p>
+<div class="expressions" id="expressions"></div>
+<button class="soft" style="margin-top:12px" id="extraBtn">Show more expressions ♡</button>
+<div id="extraExpressions" class="expressions" hidden></div>
+
+<footer>Made with ♡, pink pixels, and an unreasonable amount of uwu.<br>Wholesome chaos only! :3<br>Maximum UWU © 2026</footer>
+</main>
+</section>
+
+<section id="themesScreen" class="screen">
+  <main class="container">
+    <div class="topbar">
+      <button class="secondary" id="themesBackBtn">♡ Back</button>
+      <strong>Maximum UWU ♡</strong>
+      <span aria-hidden="true">🎀</span>
+    </div>
+    <header>
+      <div class="decor">♡ 🎀 ♡ 🎀 ♡</div>
+      <h1>Theme Boutique</h1>
+      <p class="subtitle">PICK A LITTLE WORLD TO MAKE YOUR OWN ♡</p>
+      <div class="decor">૮ ˶ᵔ ᵕ ᵔ˶ ა</div>
+    </header>
+    <div class="section-title">♡ Choose your background</div>
+    <div class="theme-panel">
+  <div class="theme-grid" id="themeGrid">
+    <button class="theme-choice" data-theme="cotton" aria-pressed="true"><span class="theme-swatch" style="background:linear-gradient(135deg,#ffc0dc,#ff80b5)"></span>Cotton Candy</button>
+    <button class="theme-choice" data-theme="dots" aria-pressed="false"><span class="theme-swatch" style="background-color:#f5a6ca;background-image:radial-gradient(white 2px,transparent 3px);background-size:13px 13px"></span>Pink Polka Dots</button>
+    <button class="theme-choice" data-theme="stripes" aria-pressed="false"><span class="theme-swatch" style="background:repeating-linear-gradient(45deg,#ffb6d5 0 8px,#ffd9e9 8px 16px)"></span>Candy Stripes</button>
+    <button class="theme-choice" data-theme="dream" aria-pressed="false"><span class="theme-swatch" style="background:radial-gradient(ellipse at top,#ffe5f0,#f7a9d0)"></span>Pink Dream</button>
+    <button class="theme-choice" data-theme="berry" aria-pressed="false"><span class="theme-swatch" style="background:linear-gradient(135deg,#f7b2d0,#d98ab9)"></span>Berry Milk</button>
+    <button class="theme-choice" data-theme="sakura" aria-pressed="false"><span class="theme-swatch" style="background:linear-gradient(135deg,#ffe0eb,#f6a8c8)"></span>Sakura Pink</button>
+    <button class="theme-choice" data-theme="bow" aria-pressed="false"><span class="theme-swatch" style="background-image:url(bow-theme.png)"></span>Bow & Hearts</button>
+    <button class="theme-choice" data-theme="hearts" aria-pressed="false"><span class="theme-swatch" style="background:radial-gradient(circle at 25% 50%,#ff4f91 0 18%,transparent 19%),radial-gradient(circle at 75% 50%,#ff8fbd 0 18%,transparent 19%),linear-gradient(135deg,#ffe5f0,#ffb8d5)"></span>Heart Overload</button>
+    <button class="theme-choice" data-theme="tinyhearts" aria-pressed="false"><span class="theme-swatch" style="background-color:#ffe4ef;background-image:radial-gradient(#ff75aa 2px,transparent 2.5px);background-size:12px 12px"></span>Tiny Hearts</button>
+    <button class="theme-choice" data-theme="ribbons" aria-pressed="false"><span class="theme-swatch" style="background:repeating-linear-gradient(135deg,#ffb7d5 0 5px,#ffe5f0 5px 13px,#f68dbb 13px 17px)"></span>Ribbon Wrapped</button>
+    <button class="theme-choice" data-theme="strawberry" aria-pressed="false"><span class="theme-swatch" style="background:radial-gradient(circle,#fff4f8 1px,transparent 2px),linear-gradient(135deg,#ffb4cf,#f47da8);background-size:10px 10px,auto"></span>Strawberry Milk</button>
+    <button class="theme-choice" data-theme="rose" aria-pressed="false"><span class="theme-swatch" style="background:repeating-radial-gradient(ellipse at center,#ffd8e8 0 4px,#f7a6c8 5px 7px,#ffeaf3 8px 12px)"></span>Rose Lace</button>
+    <button class="theme-choice" data-theme="blush" aria-pressed="false"><span class="theme-swatch" style="background:linear-gradient(135deg,#fff0f5,#f6b4cf,#ffe0ec)"></span>Blush Velvet</button>
+    <button class="theme-choice" data-theme="pinkbows" aria-pressed="false"><span class="theme-swatch" style="background:radial-gradient(ellipse at 50% 35%,#ff6fae 0 10%,transparent 11%),radial-gradient(ellipse at 50% 65%,#ff6fae 0 10%,transparent 11%),linear-gradient(135deg,#ffe3ef,#ffb8d7)"></span>Bow Confetti</button>
+    <button class="theme-choice" data-theme="lavender" aria-pressed="false"><span class="theme-swatch" style="background:linear-gradient(135deg,#f7d9ef,#e9b8df,#ffd9eb)"></span>Pink Lavender</button>
+  </div>
+    <p class="app-note" style="text-align:center;margin-top:16px">Your theme changes the whole app, not just this page. Go back whenever you're ready! ♡</p>
+    <div class="buttons"><button class="big-button" id="themesDoneBtn">♡ Done — back to Home</button></div>
+  </main>
+</section>
+
+<script>
+const descriptions = {
+none:"No transformations. Pure, untouched text.",classic:"The legendary classic uwu experience.",cute:"Extra sweetness, sparkles, and adorable energy.",evil:"A mischievous little cartoon villain.",unhinged:"Absolutely no thoughts. Maximum chaos.",sarcasm:"Oh wow. That's just SO amazing. Totally.",catgirl:"Nya~ cute cat energy activated!",girlfailure:"Trying my best. Lovable disaster energy.",lovesick:"Sweet compliments and innocent crushes.",
+shy:"H-hewwo... 👉👈",timid:"Um... i-if that's okay...",bashful:"Ehehe... d-don't look at me...",whisper:"Psst... h-hello...",hesitant:"I... um... maybe...?",stuttering:"H-h-hi! W-wanna talk?",nervous:"O-oh... is this okay?",awkward:"Sooo... uhhh... anyway...",insecure:"S-sorry... was that weird?",panic:"OH NO OH NO WHAT DO I SAY?!",flustered:"W-WHAT?! I'M NOT BLUSHING!!",tsundere:"I-it's not like I wanted to talk to you!",
+yandere:"You're my bestie forever, okay? ♡",kuudere:"I see. ...I'll stay with you.",dandere:"I... I like talking to you...",deredere:"HIHI!! I MISSED YOU!! ♡",himedere:"You may address me as your princess.",oujidere:"Leave it to me. I'll protect you.",kamidere:"Obviously, I'm the best.",sadodere:"Awww, you're so easy to tease~",mayadere:"I used to be your rival... things changed.",hinedere:"Yeah, sure. Whatever you say.",bakadere:"WAIT WHAT WERE WE TALKING ABOUT?!",
+bossy:"HEY. LISTEN TO ME. NOW.",teasing:"Awww, did I make you nervous?~",commanding:"Come on. Follow my lead.",protective:"Don't worry. I've got you.",confident:"Of course I'll succeed. Obviously.",royalty:"Make way. Royalty has arrived.",
+boykisser:"You like boys, don't you? :3",girlkisser:"Hehe~ you like girls, don't you? ♡",furryboy:"AWOO!! *happy tail wag*",furrygirl:"Hewwooo~ *happy tail wag* ♡",gremlin:"HEHEHE. LITTLE CHAOS CREATURE ACTIVATED.",floofy:"Maximum fluffiness detected! ♡",feral:"*happy creature noises* AAAAA!",puppy:"HI HI HI!! *excited tail wag*",kitten:"Mrrp? *curious head tilt*",fox:"Hehe~ clever little fox at your service.",wolf:"AWOOOO! The pack is here!"
+};
+
+Object.assign(descriptions, {
+nerdy:"Facts, facts, and more facts. Actually, did you know...?",science:"Curious science-nerd energy, with careful little explanations.",bookworm:"A cozy bookworm who has a metaphor for everything.",teacherpet:"Eager, organized, and very ready to participate.",overthinker:"Every sentence gets analyzed from seventeen angles.",
+silly:"Lighthearted silliness, with a little extra bounce.",goofy:"Goofy, playful, and delightfully unserious.",clown:"A cheerful clown with maximum silly energy.",goober:"A friendly little goober doing their best.",dingus:"Lovably clueless, but enthusiastic.",jester:"A playful royal fool with theatrical flair.",brainrot:"Internet-brained silliness, kept wholesome.",keysmash:"Excited keyboard-smash energy.",
+dreamy:"Soft, floaty, and daydreamy.",sleepy:"Gentle sleepy energy and very low battery.",cottagecore:"Cozy countryside charm and gentle nature vibes.",fairy:"A tiny sprinkle of magical fairy energy.",angel:"Sweet, gentle, and encouraging.",princesscore:"Elegant pastel princess energy.",gothic:"Dramatic moonlit gothic atmosphere, still friendly.",pastel:"Soft pastel everything.",
+gamer:"Game-night commentary and gamer vocabulary.",npc:"Calm, game-like NPC dialogue styling.",streamer:"Energetic stream commentary without changing your message.",pixelgremlin:"Tiny pixel gremlin energy.",terminallyonline:"Extremely online phrasing and meme-aware tone.",achievement:"Turns moments into cheerful achievements.",
+shakespeare:"Theatrical old-fashioned Shakespeare-inspired wording.",pirate:"Arrr, a friendly pirate voice.",detective:"Observant detective narration.",reporter:"Clear, energetic breaking-news delivery.",robot:"Precise robotic phrasing.",alien:"Curious cosmic visitor energy.",villain:"A theatrical cartoon-villain tone.",dramaqueen:"Maximum theatrical emotion.",grandma:"Warm, cozy grandma energy.",sportscommentator:"Excited play-by-play commentary.",conspiracy:"Playful corkboard-and-red-string speculation.",coach:"Positive motivational coach energy.",poet:"Gentle poetic phrasing.",piratecaptain:"Bold captain-of-the-ship energy.",
+ohio:"Surreal meme energy from the state of chaos.",sigma:"Overconfident meme parody, kept friendly.",rizzler:"Playful, exaggerated charm.",skibidi:"Silly internet-brainrot flavour.",gyatt:"Clean, exaggerated meme reactions.",based:"Confident approval energy.",cringe:"Lovably awkward internet humour.",ratio:"Mock debate and comment-section energy.",memelord:"A walking wholesome meme collection.",brainrotdeluxe:"Extra concentrated internet silliness.",
+sobbing:"Dramatic happy-or-sad tears, without changing the message.",wheezing:"Laughing-so-hard-you-can-barely-type energy.",keyboardwarrior:"Dramatic comment-section debate energy.",capslock:"LOUD, EXCITED EMPHASIS.",sideeye:"Skeptical side-eye reactions.",deadpan:"Dry, understated delivery.",unimpressed:"Calmly unimpressed reactions.",overdramatic:"Every tiny thing is a grand event.",goblinhours:"After-midnight goblin energy.",sleepdeprived:"Sleepy, typo-prone, but still understandable.",
+yapmachine:"Enthusiastic extra-wordy delivery.",yapanese:"Playful parody of talking a lot.",professionalyapper:"A very official yap specialist.",nothoughts:"Empty head, cheerful vibes.",potato:"A humble potato communicating.",chickennugget:"Tiny nugget-shaped enthusiasm.",npcdialogue:"Video-game dialogue flavour.",loadingbrain:"Thoughts loading... please wait.",brain404:"Brain not found; message still delivered.",windowserror:"A harmless computer-error parody.",showerthoughts:"Unexpectedly philosophical shower thoughts.",pigeonconspiracy:"Suspicious pigeon-related theories.",
+realitytv:"Dramatic reality-show confessionals.",animeprotagonist:"Big heroic anime lead energy.",animeside:"Supportive anime side-character energy.",disneyvillain:"A theatrical family-friendly animated villain.",soapopera:"Dramatic soap-opera delivery.",documentary:"Calm nature-documentary narration.",conspiracyboard:"Connecting the dots with dramatic suspicion.",courtroom:"Formal courtroom-style declarations.",medieval:"Old-timey medieval village phrasing.",shakespeareghost:"A friendly ghost with theatrical old English.",sportshype:"High-energy sports announcer voice.",infomercial:"Overenthusiastic product-pitch parody.",
+frog:"Ribbit-powered frog energy.",duck:"Quacky little duck energy.",raccoon:"Curious midnight-raccoon energy.",pigeon:"A city pigeon with opinions.",capybara:"Calm, peaceful capybara energy.",orangecat:"Chaotic orange-cat confidence.",possum:"Sleepy little possum energy.",toaster:"A toaster with surprisingly strong opinions.",microwave:"A sentient microwave with beeps.",bread:"A loaf with wholesome loaf energy."
+});
+
+const wordMap = {hello:"hewwo",hi:"hai",hey:"heyyy",love:"wuv",lovely:"wuvwy",sorry:"sowwy",please:"pwease",friend:"fwiend",really:"weawwy",you:"yuw",the:"da",very:"vewy",small:"smol",little:"wittle",cute:"kyoot",good:"gwood",my:"mai",happy:"happi",thank:"fank",thanks:"fankies",night:"nyight",yes:"yesh",no:"nwo"};
+const expressions = ["uwu","owo",">w<","♡","☆",":3",">:3","🥺","👉👈","nya~","hehe","ehehe","///","x3","mlem"];
+const extraExpressions = [">///<","T-T","QwQ","o///o","*nervous giggle*","*hides face*","*happy wiggle*","*quiet wave*","m-mhm...","eep!","aaah!!","rawr~","pwease?","w-wait!","(˶ᵔ ᵕ ᵔ˶)","ฅ^•ﻌ•^ฅ","*blushes*","*dramatic gasp*","mwah~","brain empty","*tail wag*","*happy purring*","awooo!"];
+const themes = {
+cotton:{page:"#ffe8f4",dot1:"#ffb9dd",dot2:"#ffffff",card:"rgba(255,250,253,.96)",field:"#ffffff",output:"#fff3fa"},
+dots:{page:"#f9c5df",dot1:"#ffffff",dot2:"#ff8fbd",card:"rgba(255,248,252,.96)",field:"#fffafd",output:"#fff0f7"},
+stripes:{page:"#ffd2e5",dot1:"#ff9fc9",dot2:"#fff0f7",card:"rgba(255,250,253,.97)",field:"#ffffff",output:"#fff1f7"},
+dream:{page:"#f7b9d6",dot1:"#ffe5f0",dot2:"#ffffff",card:"rgba(255,249,253,.96)",field:"#fffafd",output:"#fff0f8"},
+berry:{page:"#e9a9ca",dot1:"#fbd6e8",dot2:"#ffffff",card:"rgba(255,247,252,.96)",field:"#ffffff",output:"#fff0f7"},
+sakura:{page:"#ffe0eb",dot1:"#f5a8c8",dot2:"#ffffff",card:"rgba(255,250,253,.96)",field:"#ffffff",output:"#fff2f7"},
+bow:{page:"#ffe2f0",dot1:"#ffb5d6",dot2:"#ffffff",card:"rgba(255,250,253,.95)",field:"#ffffff",output:"#fff2f8"}
+};
+function applyTheme(name) {
+  const theme=themes[name]||themes.cotton;
+  const root=document.documentElement;
+  Object.entries(theme).forEach(([key,value])=>root.style.setProperty("--"+key,value));
+  const art = {
+    bow:"url(bow-theme.png)",
+    hearts:"radial-gradient(circle at 12px 12px, #ff6f9f 0 4px, transparent 4.5px), radial-gradient(circle at 32px 32px, #ff9fc2 0 5px, transparent 5.5px)",
+    tinyhearts:"radial-gradient(circle at 10px 10px, #ff6fa5 0 2px, transparent 2.5px), radial-gradient(circle at 30px 30px, #ff9fc2 0 2px, transparent 2.5px)",
+    ribbons:"repeating-linear-gradient(135deg, transparent 0 24px, #ffffff55 24px 31px, transparent 31px 54px)",
+    strawberry:"radial-gradient(circle at 14px 14px, #fff8fb 0 2px, transparent 2.5px), radial-gradient(circle at 38px 38px, #f47da8 0 2px, transparent 2.5px)",
+    rose:"repeating-radial-gradient(ellipse at 30px 30px, #ffffff22 0 5px, #f58db533 6px 8px, transparent 9px 18px)",
+    blush:"linear-gradient(135deg, #ffffff22, transparent 45%, #ffffff33)",
+    pinkbows:"radial-gradient(ellipse at 12px 12px, #ff75aa 0 4px, transparent 5px), radial-gradient(ellipse at 22px 12px, #ff75aa 0 4px, transparent 5px), radial-gradient(circle at 17px 12px, #fff1f7 0 1.5px, transparent 2px)",
+    lavender:"radial-gradient(circle at 15px 15px, #fff0fa 0 3px, transparent 3.5px), radial-gradient(circle at 45px 45px, #e9a9d6 0 3px, transparent 3.5px)"
+  };
+  const artName = art[name] || "none";
+  root.style.setProperty("--theme-art", artName);
+  document.body.style.backgroundSize = name==="bow" ? "cover,60px 60px,60px 60px" : "60px 60px,60px 60px,60px 60px";
+  document.body.style.backgroundAttachment = name==="bow" ? "fixed,fixed,fixed" : "scroll,scroll,scroll";
+  document.querySelectorAll(".theme-choice").forEach(button=>button.setAttribute("aria-pressed",String(button.dataset.theme===name)));
+  try { localStorage.setItem("maximumUwuTheme",name); } catch(e) {}
+}
+document.querySelectorAll(".theme-choice").forEach(button=>button.addEventListener("click",()=>applyTheme(button.dataset.theme)));
+try { applyTheme(localStorage.getItem("maximumUwuTheme")||"cotton"); } catch(e) { applyTheme("cotton"); }
+
+function preserveCase(original,replacement) {
+  if(original===original.toUpperCase()) return replacement.toUpperCase();
+  if(original[0]===original[0].toUpperCase()) return replacement[0].toUpperCase()+replacement.slice(1);
+  return replacement;
+}
+function uwuify(text) {
+  text=text.replace(/\b[\w']+\b/g,word=>{const replacement=wordMap[word.toLowerCase()];return replacement?preserveCase(word,replacement):word;});
+  return text.replace(/[rl]/gi,letter=>letter===letter.toUpperCase()?"W":"w");
+}
+function randomChoice(array) {return array[Math.floor(Math.random()*array.length)];}
+function addRandom(text,choices,chance) {
+  return text.replace(/([.!?]+)/g,punctuation=>Math.random()<chance?punctuation+" "+randomChoice(choices):punctuation);
+}
+function stutterWords(text,chance) {
+  return text.replace(/\b[A-Za-z]{2,}\b/g,word=>{if(Math.random()>chance)return word;const first=word[0];return first+"-"+first.toLowerCase()+"-"+word;});
+}
+function ending(text,value) {return text.trim()+" "+value;}
+
+const personalityRules = {
+  classic:{start:[],end:["uwu","♡"],words:[]},
+  cute:{start:[],end:[">w< ♡","hehe~"],words:[]},
+  evil:{start:[],end:[">:3","hehehe..."],words:[]},
+  unhinged:{start:[],end:["AAAAA >:3","CHAOS!!"],words:[]},
+  sarcasm:{start:[],end:["...wow. 🙄"],words:[]},
+  catgirl:{start:[],end:["nya~","mrrp~ ♡"],words:[]},
+  girlfailure:{start:[],end:["*tiny sigh* T-T"],words:[]},
+  lovesick:{start:[],end:["♡","you made me smile!"],words:[]},
+  shy:{start:["u-um... "],end:["👉👈"],words:[]},
+  timid:{start:["i-if it's okay... "],end:["... p-please?"],words:[]},
+  bashful:{start:[],end:["ehehe... >///<"],words:[]},
+  whisper:{start:[],end:["*quiet little wave*"],words:[]},
+  hesitant:{start:[],end:["... maybe?"],words:[]},
+  stuttering:{start:[],end:["... s-sorry!"],words:[]},
+  nervous:{start:["o-oh... "],end:["*nervous giggle*"],words:[]},
+  awkward:{start:[],end:["... anyway."],words:[]},
+  insecure:{start:[],end:["... I hope that made sense."],words:[]},
+  panic:{start:[],end:["AAAA— okay, deep breaths!"],words:[]},
+  flustered:{start:[],end:["I-IT'S FINE!! >///<"],words:[]},
+  tsundere:{start:[],end:["... N-not that I care or anything!"],words:[]},
+  yandere:{start:[],end:["♡ You're my very best friend. Don't forget me, okay? ♡"],words:[]},
+  kuudere:{start:[],end:["... noted."],words:[]},
+  dandere:{start:[],end:["... I like talking with you. ♡"],words:[]},
+  deredere:{start:[],end:["YAY!! ♡"],words:[]},
+  himedere:{start:[],end:["A royal message, naturally. ♡"],words:[]},
+  oujidere:{start:[],end:["I'll gladly help. ✨"],words:[]},
+  kamidere:{start:[],end:["As expected of me. ✨"],words:[]},
+  sadodere:{start:[],end:["Hehe~ just a little teasing! >:3"],words:[]},
+  mayadere:{start:[],end:["... perhaps we can be friends after all."],words:[]},
+  hinedere:{start:[],end:["... whatever. (I mean, sure.)"],words:[]},
+  bakadere:{start:[],end:["Wait, what were we talking about? >w<"],words:[]},
+  bossy:{start:[],end:["That's an order! ...please. ♡"],words:[]},
+  teasing:{start:[],end:["Hehe~ couldn't resist teasing you!"],words:[]},
+  commanding:{start:[],end:["Follow my lead. We've got this!"],words:[]},
+  protective:{start:[],end:["I've got your back. ♡"],words:[]},
+  confident:{start:[],end:["Obviously. I knew we could do it. ✨"],words:[]},
+  royalty:{start:[],end:["You may applaud now. 👑"],words:[]},
+  boykisser:{start:[],end:["Hehe~ :3"],words:[]},
+  girlkisser:{start:[],end:["Ehehe~ ♡"],words:[]},
+  furryboy:{start:[],end:["*happy tail wag* AWOO!"],words:[]},
+  furrygirl:{start:[],end:["*happy tail wag* Nya~ ♡"],words:[]},
+  gremlin:{start:[],end:["GREMLIN APPROVED. >:3"],words:[]},
+  floofy:{start:[],end:["*maximum fluffiness* ♡"],words:[]},
+  feral:{start:[],end:["*happy zoomies* AAAAA!"],words:[]},
+  puppy:{start:[],end:["*excited tail wag* Woof!"],words:[]},
+  kitten:{start:[],end:["Mrrp~ *tiny paw wave*"],words:[]},
+  fox:{start:[],end:["*fox tail swish* Hehe~"],words:[]},
+  wolf:{start:[],end:["AWOOOO! *happy howl*"],words:[]}
+};
+function seededChance(level, wordIndex, salt=0) {
+  // Stable per word: live preview does not reshuffle on every keystroke.
+  const x=Math.sin((wordIndex+1)*127.1+(salt+1)*311.7)*43758.5453;
+  return (x-Math.floor(x)) < level;
+}
+function stutterWords(text, chance) {
+  let i=0;
+  return text.replace(/\b[A-Za-z]{3,}\b/g,word=>{
+    const current=i++;
+    if(!seededChance(chance,current,7)) return word;
+    const first=word[0];
+    return first+"-"+first.toLowerCase()+"-"+word;
+  });
+}
+function convertText(original,mode,chaos) {
+  if(mode==="none") return original;
+  if(!original.trim()) return "";
+  let text=uwuify(original);
+  const intensity=Math.max(0,Math.min(1,chaos/100));
+  const rules=personalityRules[mode]||{start:[],end:[]};
+
+  // Apply tone to the user's own wording rather than replacing it with canned dialogue.
+  if(["whisper","kuudere","hinedere"].includes(mode)) text=text.toLowerCase();
+  if(["panic","unhinged","kamidere","bossy"].includes(mode)) {
+    const amount=mode==="unhinged"||mode==="panic" ? intensity*.75 : intensity*.35;
+    text=text.replace(/[a-z]/gi,(ch,i)=>seededChance(amount,i,11)?ch.toUpperCase():ch);
+  }
+  if(mode==="sarcasm") text=text.replace(/!/g,"...");
+  if(mode==="evil"||mode==="gremlin") text=text.replace(/\./g,"...");
+  if(mode==="stuttering") text=stutterWords(text,intensity*.55);
+  if(mode==="nervous"||mode==="panic") text=text.replace(/\b(I|i)\b/g,"I");
+  if(mode==="hesitant" && intensity>.15) {
+    let n=0; text=text.replace(/\b(we|I|i|maybe|perhaps)\b/gi,w=>seededChance(intensity*.35,n++,13)?w+"...":w);
+  }
+  if(mode==="flustered" && intensity>.25) text=text.replace(/([.!?])/g,"$1 >///<");
+  if(mode==="tsundere" && intensity>.35) text=text.replace(/\b(really|very|so)\b/gi,w=>"n-not "+w.toLowerCase());
+  if(mode==="yandere" && intensity>.5) text=text.replace(/\b(friend|friends|bestie|besties)\b/gi,w=>w+" forever");
+  if(mode==="deredere" && intensity>.4) text=text.replace(/\b(you|your)\b/gi,w=>w.toLowerCase()==="you"?"yoooou":"yourrr");
+  if(mode==="royalty" && intensity>.45) text=text.replace(/\b(please|thanks|thank you)\b/gi,w=>w+" graciously");
+  if(mode==="puppy"||mode==="furryboy"||mode==="furrygirl") {
+    if(intensity>.55) text=text.replace(/\b(hi|hello|hey)\b/gi,w=>w+"!!");
+  }
+  if(mode==="kitten"||mode==="catgirl") {
+    if(intensity>.65) text=text.replace(/\b(what|really|hello)\b/gi,w=>w+" nya");
+  }
+  if(mode==="floofy" && intensity>.5) text=text.replace(/\b(soft|cute|happy)\b/gi,w=>"floofy "+w);
+  if(mode==="fox" && intensity>.65) text=text.replace(/\b(clever|smart)\b/gi,w=>"sly "+w);
+  if(mode==="wolf" && intensity>.65) text=text.replace(/\b(we|us|our)\b/gi,w=>"the pack");
+  if(mode==="lovesick" && intensity>.5) text=text.replace(/\b(good|nice|kind)\b/gi,w=>"wonderfully "+w);
+
+  // Keep the user's message intact: no unrelated canned opening or ending lines.
+  let result=text;
+  if(intensity>.82 && ["cute","classic","catgirl","deredere","boykisser","girlkisser","fairy","angel","princesscore"].includes(mode)) result += " ♡";
+  return applyExtraPersonality(result, mode, intensity);
+}
+
+
+const extraModeIds = [
+"nerdy","science","bookworm","teacherpet","overthinker","silly","goofy","clown","goober","dingus","jester","brainrot","keysmash",
+"dreamy","sleepy","cottagecore","fairy","angel","princesscore","gothic","pastel","gamer","npc","streamer","pixelgremlin","terminallyonline","achievement",
+"shakespeare","pirate","detective","reporter","robot","alien","villain","dramaqueen","grandma","sportscommentator","conspiracy","coach","poet","piratecaptain",
+"ohio","sigma","rizzler","skibidi","gyatt","based","cringe","ratio","memelord","brainrotdeluxe","sobbing","wheezing","keyboardwarrior","capslock","sideeye","deadpan","unimpressed","overdramatic","goblinhours","sleepdeprived",
+"yapmachine","yapanese","professionalyapper","nothoughts","potato","chickennugget","npcdialogue","loadingbrain","brain404","windowserror","showerthoughts","pigeonconspiracy",
+"realitytv","animeprotagonist","animeside","disneyvillain","soapopera","documentary","conspiracyboard","courtroom","medieval","shakespeareghost","sportshype","infomercial",
+"frog","duck","raccoon","pigeon","capybara","orangecat","possum","toaster","microwave","bread"
+];
+
+function applyExtraPersonality(text, mode, intensity) {
+  const level = intensity;
+  const replacements = {
+    nerdy:[[/\b(interesting|know|think)\b/gi,"$1, technically"],[/\b(because)\b/gi,"because, scientifically"]],
+    science:[[/\b(think|guess)\b/gi,"hypothesize"],[/\b(why)\b/gi,"for what reason"]],
+    bookworm:[[/\b(said)\b/gi,"declared"],[/\b(think)\b/gi,"ponder"]],
+    teacherpet:[[/\b(yes)\b/gi,"yes, absolutely"],[/\b(ready)\b/gi,"prepared"]],
+    overthinker:[[/\b(maybe)\b/gi,"maybe... or perhaps not"],[/\b(okay)\b/gi,"okay (probably)"]],
+    silly:[[/\b(very)\b/gi,"super-duper"],[/\b(thing)\b/gi,"thingamajig"]],
+    goofy:[[/\b(good)\b/gi,"goofy-good"],[/\b(hello)\b/gi,"hewo there"]],
+    clown:[[/\b(serious)\b/gi,"silly"],[/\b(problem)\b/gi,"clown-sized problem"]],
+    goober:[[/\b(friend)\b/gi,"goober friend"],[/\b(hello)\b/gi,"heyo"]],
+    dingus:[[/\b(think)\b/gi,"use my one braincell to think"]],
+    jester:[[/\b(hello)\b/gi,"greetings, noble audience"],[/\b(yes)\b/gi,"verily, yes"]],
+    brainrot:[[/\b(very)\b/gi,"mega"],[/\b(what)\b/gi,"what in the"]],
+    keysmash:[[/[.!?]/g,"!!!"]],
+    dreamy:[[/\b(beautiful)\b/gi,"dreamlike"],[/\b(nice)\b/gi,"lovely"]],
+    sleepy:[[/\b(hello)\b/gi,"hellooo..."],[/\b(very)\b/gi,"sooo"]],
+    cottagecore:[[/\b(home)\b/gi,"cozy cottage"],[/\b(nice)\b/gi,"charming"]],
+    fairy:[[/\b(good)\b/gi,"magical"],[/\b(little)\b/gi,"tiny"]],
+    angel:[[/\b(good)\b/gi,"wonderful"],[/\b(help)\b/gi,"kindly help"]],
+    princesscore:[[/\b(hello)\b/gi,"why, hello"],[/\b(good)\b/gi,"splendid"]],
+    gothic:[[/\b(night)\b/gi,"moonlit night"],[/\b(happy)\b/gi,"delightfully gloomy"]],
+    pastel:[[/\b(good)\b/gi,"soft and lovely"]],
+    gamer:[[/\b(start)\b/gi,"begin the quest"],[/\b(done)\b/gi,"quest complete"]],
+    npc:[[/\b(hello)\b/gi,"Greetings, traveler"],[/\b(bye)\b/gi,"Farewell, traveler"]],
+    streamer:[[/\b(hello)\b/gi,"Hey chat"],[/\b(look)\b/gi,"Look at this"]],
+    pixelgremlin:[[/\b(little)\b/gi,"pixel-sized"],[/\b(chaos)\b/gi,"pixel chaos"]],
+    terminallyonline:[[/\b(really)\b/gi,"unironically"],[/\b(good)\b/gi,"based"]],
+    achievement:[[/\b(did)\b/gi,"unlocked: did"],[/\b(finished)\b/gi,"achievement completed: finished"]],
+    shakespeare:[[/\byou\b/gi,"thou"],[/\byour\b/gi,"thy"],[/\byes\b/gi,"aye"]],
+    pirate:[[/\byou\b/gi,"ye"],[/\byour\b/gi,"yer"],[/\b(my)\b/gi,"me"]],
+    detective:[[/\b(I think)\b/gi,"The evidence suggests"],[/\b(look)\b/gi,"Examine"]],
+    reporter:[[/\b(hello)\b/gi,"Good evening"],[/\b(look)\b/gi,"In today's development"]],
+    robot:[[/\b(I am)\b/gi,"UNIT STATUS: I am"],[/\b(hello)\b/gi,"GREETINGS"]],
+    alien:[[/\b(hello)\b/gi,"Greetings, earthling"],[/\b(friend)\b/gi,"fellow life-form"]],
+    villain:[[/\b(you)\b/gi,"you, my unsuspecting audience"],[/\b(plan)\b/gi,"master plan"]],
+    dramaqueen:[[/[.!?]/g,"!!!"]],
+    grandma:[[/\b(hello)\b/gi,"Well hello, dear"],[/\b(lovely)\b/gi,"just lovely"]],
+    sportscommentator:[[/\b(yes)\b/gi,"AND IT'S A YES"],[/\b(go)\b/gi,"HERE THEY GO"]],
+    conspiracy:[[/\b(think)\b/gi,"suspect"],[/\b(maybe)\b/gi,"and what if"]],
+    coach:[[/\b(can't)\b/gi,"can absolutely work toward"],[/\b(try)\b/gi,"give it your best"]],
+    poet:[[/\b(heart)\b/gi,"heart, a lantern within"],[/\b(night)\b/gi,"velvet night"]],
+    piratecaptain:[[/\b(we)\b/gi,"the crew and I"],[/\b(go)\b/gi,"set sail"]],
+    ohio:[[/\b(weird)\b/gi,"Ohio-level weird"],[/\b(what)\b/gi,"what in Ohio"]],
+    sigma:[[/\b(I)\b/g,"I"],[/\b(good)\b/gi,"sigma-level"]],
+    rizzler:[[/\b(nice)\b/gi,"smooth"],[/\b(hello)\b/gi,"well hello there"]],
+    skibidi:[[/\b(hello)\b/gi,"skibidi hewwo"],[/\b(good)\b/gi,"skibidi-good"]],
+    gyatt:[[/\b(wow)\b/gi,"GYATT, wow"]],
+    based:[[/\b(good)\b/gi,"based"],[/\b(agree)\b/gi,"hard agree"]],
+    cringe:[[/\b(hello)\b/gi,"hello (that was awkward)"],[/\b(good)\b/gi,"awkwardly good"]],
+    ratio:[[/\b(agree)\b/gi,"the comments agree"],[/\b(disagree)\b/gi,"the replies have entered the chat"]],
+    memelord:[[/\b(very)\b/gi,"ultra"],[/\b(hello)\b/gi,"henlo, internet"]],
+    brainrotdeluxe:[[/\b(very)\b/gi,"ABSOLUTELY"],[/\b(what)\b/gi,"WHAT IS THIS TIMELINE"]],
+    sobbing:[[/[.!?]/g," 😭$&"]],
+    wheezing:[[/[.!?]/g," 💀$&"]],
+    keyboardwarrior:[[/\b(I think)\b/gi,"I hereby argue that"]],
+    capslock:[],
+    sideeye:[[/\b(really)\b/gi,"...really"],[/\b(interesting)\b/gi,"interesting."]],
+    deadpan:[[/!/g,"."],[/\b(amazing)\b/gi,"noted"]],
+    unimpressed:[[/!/g,"."],[/\b(wow)\b/gi,"oh. wow"]],
+    overdramatic:[[/[.!?]/g,"...$&"]],
+    goblinhours:[[/\b(hello)\b/gi,"greetings from the goblin hours"],[/\b(yes)\b/gi,"y e s"]],
+    sleepdeprived:[[/\b(hello)\b/gi,"h... hello"],[/\b(think)\b/gi,"try to think"]],
+    yapmachine:[[/\b(and)\b/gi,"and furthermore"],[/\b(also)\b/gi,"and ALSO"]],
+    yapanese:[[/\b(hello)\b/gi,"hello, let me elaborate"],[/\b(so)\b/gi,"so, to expand"]],
+    professionalyapper:[[/\b(I think)\b/gi,"My professional yap assessment is"]],
+    nothoughts:[[/\b(think)\b/gi,"attempt to think"],[/\b(idea)\b/gi,"single braincell activity"]],
+    potato:[[/\b(I)\b/g,"this potato"],[/\b(my)\b/gi,"this potato's"]],
+    chickennugget:[[/\b(good)\b/gi,"nugget-approved"],[/\b(hello)\b/gi,"nugget greetings"]],
+    npcdialogue:[[/\b(hello)\b/gi,"Greetings, player"],[/\b(you)\b/gi,"you, player"]],
+    loadingbrain:[[/\b(think)\b/gi,"load thought"],[/\b(know)\b/gi,"retrieve memory"]],
+    brain404:[[/\b(think)\b/gi,"search for brain.exe"],[/\b(know)\b/gi,"locate knowledge"]],
+    windowserror:[[/\b(problem)\b/gi,"unexpected error"],[/\b(think)\b/gi,"process thought"]],
+    showerthoughts:[[/\b(think)\b/gi,"ponder the universe about"],[/\b(why)\b/gi,"but have we considered why"]],
+    pigeonconspiracy:[[/\b(look)\b/gi,"observe the pigeons"],[/\b(they)\b/gi,"the pigeons"]],
+    realitytv:[[/\b(I think)\b/gi,"What you don't know is, I think"]],
+    animeprotagonist:[[/\b(can)\b/gi,"CAN"],[/\b(never)\b/gi,"NEVER"]],
+    animeside:[[/\b(you can)\b/gi,"I believe in you, you can"]],
+    disneyvillain:[[/\b(plan)\b/gi,"ingenious plan"],[/\b(know)\b/gi,"KNOW"]],
+    soapopera:[[/[.!?]/g,"...$&"]],
+    documentary:[[/\b(look)\b/gi,"Observe"],[/\b(there is)\b/gi,"There exists"]],
+    conspiracyboard:[[/\b(maybe)\b/gi,"the clues suggest"],[/\b(why)\b/gi,"WHO BENEFITS? Why"]],
+    courtroom:[[/\b(I think)\b/gi,"The court submits that I think"],[/\b(you)\b/gi,"the witness"]],
+    medieval:[[/\byou\b/gi,"thou"],[/\byour\b/gi,"thy"],[/\b(hello)\b/gi,"Good morrow"]],
+    shakespeareghost:[[/\byou\b/gi,"thou"],[/\b(hello)\b/gi,"Hark!"]],
+    sportshype:[[/[.!?]/g,"!!!$&"]],
+    infomercial:[[/\b(need)\b/gi,"NEED"],[/\b(look)\b/gi,"BUT WAIT, LOOK"]],
+    frog:[[/\b(hello)\b/gi,"ribbit-hello"],[/\b(yes)\b/gi,"ribbity yes"]],
+    duck:[[/\b(hello)\b/gi,"quack-hello"],[/\b(yes)\b/gi,"quack yes"]],
+    raccoon:[[/\b(look)\b/gi,"rummage-look"],[/\b(night)\b/gi,"midnight"]],
+    pigeon:[[/\b(hello)\b/gi,"coo-hello"],[/\b(yes)\b/gi,"coo, yes"]],
+    capybara:[[/!/g,"."],[/\b(happy)\b/gi,"peaceful"]],
+    orangecat:[[/\b(yes)\b/gi,"yes (probably)"],[/\b(no)\b/gi,"no (absolutely)"]],
+    possum:[[/\b(hello)\b/gi,"h-hello..."],[/\b(look)\b/gi,"peek"]],
+    toaster:[[/\b(hello)\b/gi,"TOASTING: hello"],[/\b(warm)\b/gi,"perfectly toasted"]],
+    microwave:[[/\b(hello)\b/gi,"BEEP. hello"],[/[.!?]/g," BEEP$&"]],
+    bread:[[/\b(hello)\b/gi,"loaf-hello"],[/\b(good)\b/gi,"well-bread"]]
+  };
+  if (mode === "capslock" || mode === "keysmash") {
+    if (level > 0.15) text = text.toUpperCase();
+    if (mode === "keysmash" && level > 0.55) text = text.replace(/[.!?]/g, "!!");
+  } else {
+    const list = replacements[mode] || [];
+    if (level > 0.12) list.forEach(([pattern, replacement]) => { text = text.replace(pattern, replacement); });
+  }
+  if (level > 0.72 && ["wheezing","sobbing","overdramatic","sportshype","dramaqueen"].includes(mode)) text = text.replace(/\b([A-Z]{3,})\b/g, "$1!!");
+  return text;
+}
+
+const secretCombos = [
+{ name:"One Braincell™", modes:["nerdy","nothoughts"] },
+{ name:"Academic Weapon (Derogatory)", modes:["nerdy","sleepdeprived"] },
+{ name:"The Last Two Neurons", modes:["goofy","overthinker"] },
+{ name:"404: Intelligence Not Found", modes:["robot","brain404"] },
+{ name:"Wikipedia at 3AM", modes:["nerdy","conspiracy"] },
+{ name:"Yapademic Scholar", modes:["professionalyapper","bookworm"] },
+{ name:"Chronically Online™", modes:["terminallyonline","memelord"] },
+{ name:"The Comment Section", modes:["ratio","keyboardwarrior"] },
+{ name:"Certified Yapper", modes:["yapmachine","rizzler"] },
+{ name:"Ohio Final Boss", modes:["ohio","villain"] },
+{ name:"Skibidi Scholar", modes:["skibidi","nerdy"] },
+{ name:"Brainrot Royalty", modes:["brainrotdeluxe","royalty"] },
+{ name:"The Algorithm's Favourite", modes:["streamer","memelord"] },
+{ name:"Unskippable Cutscene", modes:["npc","overdramatic"] },
+{ name:"Orange Cat Behaviour", modes:["orangecat","gremlin"] },
+{ name:"Wet Floor Creature", modes:["frog","goblinhours"] },
+{ name:"Pigeon With Wi-Fi", modes:["pigeon","terminallyonline"] },
+{ name:"Capybara CEO", modes:["capybara","bossy"] },
+{ name:"Possum at Midnight", modes:["possum","sleepdeprived"] },
+{ name:"Duck With an Agenda", modes:["duck","conspiracy"] },
+{ name:"The Forbidden Toaster", modes:["toaster","villain"] },
+{ name:"Tiny Menace", modes:["kitten","feral"] },
+{ name:"Main Character Syndrome", modes:["animeprotagonist","dramaqueen"] },
+{ name:"Courtroom Menace", modes:["detective","keyboardwarrior"] },
+{ name:"The Final Monologue", modes:["shakespeare","villain"] },
+{ name:"Breaking News: Disaster", modes:["reporter","overdramatic"] },
+{ name:"Theatre Kid Overload", modes:["shakespeare","clown"] },
+{ name:"Emotional Damage Deluxe", modes:["sobbing","overdramatic"] },
+{ name:"Plot Twist Generator", modes:["conspiracy","soapopera"] },
+{ name:"Local Celebrity", modes:["streamer","dramaqueen"] },
+{ name:"Sleepy Fairy Dust", modes:["sleepy","fairy"] },
+{ name:"Pastel Panic", modes:["pastel","panic"] },
+{ name:"Sparkle Goblin", modes:["princesscore","gremlin"] },
+{ name:"Sakura Menace", modes:["dreamy","feral"] },
+{ name:"Strawberry Disaster", modes:["cute","goofy"] },
+{ name:"Crying in Glitter", modes:["sobbing","princesscore"] },
+{ name:"The Shy Little Chaos", modes:["shy","unhinged"] },
+{ name:"Certified Cuddle Creature", modes:["floofy","capybara"] },
+{ name:"SYSTEM OVERLOAD", modes:["robot","keysmash","overdramatic"] },
+{ name:"THE YAPPOCALYPSE", modes:["yapmachine","brainrotdeluxe","capslock"] },
+{ name:"THE INTERNET HAS LEFT THE CHAT", modes:["terminallyonline","deadpan","npc"] },
+{ name:"THE GREAT BRAIN CELL MIGRATION", modes:["nerdy","goober","nothoughts"] },
+{ name:"THE CHAOS TRIFECTA", modes:["unhinged","gremlin","feral"] },
+{ name:"THE ROYAL GOBLIN COUNCIL", modes:["royalty","goblinhours","bossy"] },
+{ name:"THE LAST CAT ON EARTH", modes:["orangecat","catgirl","sleepdeprived"] },
+{ name:"THE UNSTOPPABLE DRAMA ENGINE", modes:["dramaqueen","villain","realitytv"] }
+];
+
+function setupComboLab() {
+  const main = document.getElementById("mode");
+  const a = document.getElementById("comboModeA");
+  const b = document.getElementById("comboModeB");
+  const status = document.getElementById("comboStatus");
+  const collection = document.getElementById("comboCollection");
+  const saved = new Set();
+  try { JSON.parse(localStorage.getItem("maximumUwuDiscoveredCombos") || "[]").forEach(x => saved.add(x)); } catch(e) {}
+  [a,b].forEach(select => {
+    Array.from(main.options).forEach(option => {
+      if (!option.value || option.value === "none") return;
+      const copy = document.createElement("option");
+      copy.value = option.value; copy.textContent = option.textContent;
+      select.appendChild(copy);
+    });
+  });
+  function refresh() {
+    const selected = [main.value,a.value,b.value].filter(Boolean).filter(x=>x!=="none");
+    const combo = secretCombos.find(item => item.modes.length === selected.length && item.modes.every(x=>selected.includes(x)) && selected.every(x=>item.modes.includes(x)));
+    if (combo) {
+      status.textContent = "✨ SECRET PERSONALITY DISCOVERED: " + combo.name + "! ✨";
+      if (!saved.has(combo.name)) {
+        saved.add(combo.name);
+        try { localStorage.setItem("maximumUwuDiscoveredCombos", JSON.stringify([...saved])); } catch(e) {}
+      }
+    } else {
+      status.textContent = selected.length > 1 ? "No secret match yet... keep experimenting! :3" : "Choose two or three ingredients to discover a secret combo. ♡";
+    }
+    collection.textContent = saved.size ? "♡ Discovered combos: " + [...saved].join(" · ") : "Your discovered secret combos will appear here. ♡";
+    return combo;
+  }
+  [main,a,b].forEach(el=>el.addEventListener("change",()=>{refresh();liveConvert();}));
+  refresh();
+  return refresh;
+}
+let getActiveCombo = () => null;
+
+function convert() {
+  const original=document.getElementById("input").value;
+  const mode=document.getElementById("mode").value;
+  const chaos=Number(document.getElementById("chaos").value);
+  const combo = getActiveCombo();
+  let result = convertText(original,mode,chaos);
+  if (combo) combo.modes.slice(1).forEach(extraMode => { result = convertText(result,extraMode,chaos); });
+  document.getElementById("output").value=result;
+  document.getElementById("status").textContent=original.trim()?(combo ? "Secret combo active: "+combo.name+"! ✨" : "Conversion complete! ♡"):"Type something first! :3";
+}
+function clearAll() {
+  document.getElementById("input").value="";document.getElementById("output").value="";
+  document.getElementById("status").textContent="";document.getElementById("input").focus();
+}
+async function copyText() {
+  const output=document.getElementById("output"),status=document.getElementById("status");
+  if(!output.value){status.textContent="Nothing to copy yet! ♡";return;}
+  try {await navigator.clipboard.writeText(output.value);status.textContent="Copied! ♡";}
+  catch(error) {
+    output.focus();output.select();output.setSelectionRange(0,99999);
+    try {document.execCommand("copy");status.textContent="Copied! ♡";}
+    catch(copyError){status.textContent="Please select and copy manually!";}
+  }
+}
+function addExpression(expression) {
+  const input=document.getElementById("input");input.value+=(input.value?" ":"")+expression;input.focus();
+}
+function randomExpression(){addExpression(randomChoice(expressions));}
+function updateDescription(){const m=document.getElementById("mode").value;document.getElementById("description").textContent=descriptions[m]||"A special personality flavour. ♡";}
+function toggleExtra() {
+  const extra=document.getElementById("extraExpressions"),button=document.getElementById("extraBtn");
+  extra.hidden=!extra.hidden;button.textContent=extra.hidden?"Show more expressions ♡":"Hide extra expressions ♡";
+}
+function renderExpressions() {
+  const main=document.getElementById("expressions"),extra=document.getElementById("extraExpressions");
+  expressions.forEach(expression=>{const button=document.createElement("button");button.className="expression";button.textContent=expression;button.addEventListener("click",()=>addExpression(expression));main.appendChild(button);});
+  extraExpressions.forEach(expression=>{const button=document.createElement("button");button.className="expression";button.textContent=expression;button.addEventListener("click",()=>addExpression(expression));extra.appendChild(button);});
+}
+function savePreferences() {
+  try {
+    localStorage.setItem("maximumUwuMode",document.getElementById("mode").value);
+    localStorage.setItem("maximumUwuChaos",document.getElementById("chaos").value);
+  } catch(e) {}
+}
+function loadPreferences() {
+  try {
+    const mode=localStorage.getItem("maximumUwuMode"),chaos=localStorage.getItem("maximumUwuChaos");
+    if(mode&&document.querySelector(`#mode option[value="${mode}"]`))document.getElementById("mode").value=mode;
+    if(chaos!==null){document.getElementById("chaos").value=chaos;document.getElementById("chaosValue").textContent=chaos+"%";}
+  } catch(e) {}
+}
+document.getElementById("mode").addEventListener("change",()=>{updateDescription();savePreferences();});
+document.getElementById("chaos").addEventListener("input",event=>{document.getElementById("chaosValue").textContent=event.target.value+"%";savePreferences();});
+document.getElementById("convertBtn").addEventListener("click",convert);
+document.getElementById("againBtn").addEventListener("click",convert);
+document.getElementById("clearBtn").addEventListener("click",clearAll);
+document.getElementById("copyBtn").addEventListener("click",copyText);
+document.getElementById("randomBtn").addEventListener("click",randomExpression);
+document.getElementById("extraBtn").addEventListener("click",toggleExtra);
+
+function showScreen(which) {
+  document.getElementById("welcomeScreen").classList.toggle("active",which==="welcome");
+  document.getElementById("converterScreen").classList.toggle("active",which==="converter");
+  document.getElementById("themesScreen").classList.toggle("active",which==="themes");
+  window.scrollTo(0,0);
+}
+
+const loadingOverlay = document.getElementById("loadingOverlay");
+
+function playLoading(nextAction, duration = 1000) {
+  loadingOverlay.classList.remove("hidden");
+
+  window.setTimeout(() => {
+    nextAction();
+    loadingOverlay.classList.add("hidden");
+  }, duration);
+}
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  playLoading(() => showScreen("converter"), 1000);
+});
+
+document.getElementById("homeBtn").addEventListener("click",()=>showScreen("welcome"));
+function openThemes() {
+  playLoading(() => showScreen("themes"), 850);
+}
+document.getElementById("settingsBtn").addEventListener("click",openThemes);
+document.getElementById("welcomeSettingsBtn").addEventListener("click",openThemes);
+document.getElementById("themesBackBtn").addEventListener("click",()=>showScreen("welcome"));
+document.getElementById("themesDoneBtn").addEventListener("click",()=>showScreen("welcome"));
+const liveToggle=document.getElementById("liveToggle");
+try { const savedLive=localStorage.getItem("maximumUwuLive"); liveToggle.checked=savedLive===null ? true : savedLive==="true"; } catch(e) { liveToggle.checked=true; }
+function liveConvert() {
+  if(liveToggle.checked) {
+    const value=document.getElementById("input").value;
+    const mode=document.getElementById("mode").value, chaos=Number(document.getElementById("chaos").value);
+    const combo=getActiveCombo();
+    let result=convertText(value,mode,chaos);
+    if(combo) combo.modes.slice(1).forEach(extraMode=>{result=convertText(result,extraMode,chaos);});
+    document.getElementById("output").value=result;
+    document.getElementById("status").textContent=value.trim()?(combo?"Secret combo preview: "+combo.name+" ✨":"Live preview ♡"):"";
+  }
+}
+liveToggle.addEventListener("change",()=>{
+  try {localStorage.setItem("maximumUwuLive",String(liveToggle.checked));} catch(e) {}
+  liveConvert();
+});
+document.getElementById("input").addEventListener("input",liveConvert);
+document.getElementById("mode").addEventListener("change",liveConvert);
+document.getElementById("chaos").addEventListener("input",liveConvert);
+document.getElementById("intensityLabel").textContent="Personality intensity: "+document.getElementById("chaos").value+"%";
+document.getElementById("chaos").addEventListener("input",e=>{
+  document.getElementById("intensityLabel").textContent="Personality intensity: "+e.target.value+"%";
+});
+renderExpressions();loadPreferences();updateDescription();
+getActiveCombo = setupComboLab();
+document.getElementById("intensityLabel").textContent="Personality intensity: "+document.getElementById("chaos").value+"%";
+liveConvert();
+  window.addEventListener("load", () => {
+  window.setTimeout(() => {
+    loadingOverlay.classList.add("hidden");
+  }, 1450);
+});
+
+</script>
+</body>
+</html>
